@@ -6,6 +6,6 @@ import org.apache.spark.{SparkConf, SparkContext}
 trait TwitterExtractorBase  {
 
   // define some constants
-  val numberOfTweets: Int = 10000
+  val numberOfTweets: Int = 100000
 
 }
