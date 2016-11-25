@@ -32,10 +32,6 @@ class ExamineAndTrainModel(sc:SparkContext, sqlc: SQLContext,twitterDir:File, mo
     val gson: Gson = new GsonBuilder().setPrettyPrinting().create
     val jsonParser = new JsonParser
 
-    tweets.take(5) foreach { tweet =>
-      println(gson.toJson(jsonParser.parse(tweet)))
-    }
-
     val tweetTable = sqlc
                         .read
                         .json(twitterDir.getCanonicalPath)

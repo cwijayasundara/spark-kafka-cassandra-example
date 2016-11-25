@@ -13,6 +13,7 @@ object SparkResourceSetUp {
   private val threadProfile:String = "local[4]"
   private val timeInterval: Int = 2
 
+  // change with your local settings
   private val twitterBaseDirPath:String = "/Users/cwijayasundara/Documents/self-learning/spark/tweet-classify/tweets"
   private val twitterModelDirPath: String = "/Users/cwijayasundara/Documents/self-learning/spark/tweet-classify/model"
 
@@ -24,18 +25,18 @@ object SparkResourceSetUp {
   // create the streamingContext
   private val streamingContext = new StreamingContext(sparkContext, Seconds(timeInterval))
 
-  val spark = SparkSession
+  val spark: SparkSession = SparkSession
                         .builder
                         .appName(appName)
                         .getOrCreate()
 
   private val sqlContext: SQLContext= spark.sqlContext
 
-  def getAppName(): String ={
+  def getAppName: String ={
     this.appName
   }
 
-  def getThreadingProfile():String ={
+  def getThreadingProfile:String ={
      this.threadProfile
   }
 
