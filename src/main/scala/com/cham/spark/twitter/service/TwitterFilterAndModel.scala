@@ -23,7 +23,7 @@ object TwitterFilterAndModel extends App with TwitterFilterAndModeBase{
 import TwitterClassifier.featurize
 import SparkResourceSetUp.spark.implicits._
 
-class ExamineAndTrainModel(sc:SparkContext, sqlc: SQLContext,twitterDir:File, modelDir: File, numCluster: Int, numIter:Int){
+class ExamineAndTrainModel(sc:SparkContext,sqlc: SQLContext,twitterDir:File, modelDir: File, numCluster: Int, numIter:Int){
 
   def markAndTrain(): Unit ={
     //load the tweets from the disk

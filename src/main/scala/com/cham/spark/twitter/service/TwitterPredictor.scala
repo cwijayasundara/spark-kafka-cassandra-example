@@ -2,6 +2,7 @@ package com.cham.spark.twitter.service
 
 import java.io.File
 
+import com.cham.spark.twitter.service.TwitterClassifier.featurize
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.clustering.KMeansModel
 import org.apache.spark.mllib.linalg.Vector
@@ -34,7 +35,7 @@ class TwitterPredictorExec(sc: SparkContext, ssc:StreamingContext, numCluster: I
     TwitterUtils.createStream(ssc, None)
                 .map(_.getText)
                 .foreachRDD { rdd =>
-                              rdd.filter(t => model.predict(TwitterClassifier.featurize(t)) == numCluster)
+                              rdd.filter(t => model.predict(featurize(t)) == numCluster)
                                  .foreach(print)  // register DStream as an output stream and materialize it
       }
     println("Initialization complete, starting streaming computation.")

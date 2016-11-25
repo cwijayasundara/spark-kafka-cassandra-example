@@ -10,7 +10,7 @@ object TwitterExtractor extends App {
 
   val sc: StreamingContext = SparkResourceSetUp.getStreamingContext
   val twitterPath:String = SparkResourceSetUp.getTwitterBaseDir
-  val numberOfTweets: Int = 100000
+  val numberOfTweets: Int = 10000
 
   TweetCollector.extractTweetsAsJson(sc,numberOfTweets,twitterPath)
 
