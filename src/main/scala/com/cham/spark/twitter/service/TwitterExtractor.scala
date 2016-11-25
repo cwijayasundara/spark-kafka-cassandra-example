@@ -6,10 +6,11 @@ import org.apache.spark.streaming.{StreamingContext}
 import com.google.gson.Gson
 
 
-object TwitterExtractor extends App with TwitterExtractorBase {
+object TwitterExtractor extends App {
 
   val sc: StreamingContext = SparkResourceSetUp.getStreamingContext
   val twitterPath:String = SparkResourceSetUp.getTwitterBaseDir
+  val numberOfTweets: Int = 100000
 
   TweetCollector.extractTweetsAsJson(sc,numberOfTweets,twitterPath)
 
