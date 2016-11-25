@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/spark-twitter-kafka-cassandra-inaction.iml" filepath="$PROJECT_DIR$/.idea/modules/spark-twitter-kafka-cassandra-inaction.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/spark-twitter-kafka-cassandra-inaction-build.iml" filepath="$PROJECT_DIR$/.idea/modules/spark-twitter-kafka-cassandra-inaction-build.iml" />
+    </modules>
+  </component>
+</project>
