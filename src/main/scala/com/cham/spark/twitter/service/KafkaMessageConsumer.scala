@@ -24,35 +24,43 @@ object KafkaMessageConsumer {
 
     def main(args: Array[String]) {
 
-      val sparkConf = new SparkConf().setAppName("spark-consumer").setMaster("local[4]")
-      val ssc = new StreamingContext(sparkConf, Seconds(2))
+      consumeFromSparkStreamingApi
 
-      val kafkaParams = Map[String, Object](
-        "bootstrap.servers" -> "localhost:9092",
-        "key.deserializer" -> classOf[StringDeserializer],
-        "value.deserializer" -> classOf[StringDeserializer],
-        "group.id" -> "group1",
-        "auto.offset.reset" -> "latest",
-        "enable.auto.commit" -> (false: java.lang.Boolean)
-      )
-
-      val topics = Array("poc")
-      val stream = KafkaUtils.createDirectStream[String, String](
-        ssc,
-        PreferConsistent,
-        Subscribe[String, String](topics, kafkaParams)
-      )
-
-      stream.map(new Gson().toJson(_)).print()
-
-      ssc.start()
-      ssc.awaitTermination()
     }
 
   /*
    * Method that use the direct kafka consumer API
    */
 
+  def consumeFromSparkStreamingApi(): Unit ={
+
+    val sparkConf = new SparkConf().setAppName("spark-consumer").setMaster("local[4]")
+    val ssc = new StreamingContext(sparkConf, Seconds(2))
+
+    val kafkaParams = Map[String, Object](
+      "bootstrap.servers" -> "localhost:9092",
+      "key.deserializer" -> classOf[StringDeserializer],
+      "value.deserializer" -> classOf[StringDeserializer],
+      "group.id" -> "group1",
+      "auto.offset.reset" -> "latest",
+      "enable.auto.commit" -> (false: java.lang.Boolean)
+    )
+
+    val topics = Array("poc")
+
+    val stream = KafkaUtils.createDirectStream[String, String](
+      ssc,
+      PreferConsistent,
+      Subscribe[String, String](topics, kafkaParams)
+    )
+
+    stream.map(new Gson().toJson(_)).print()
+
+    ssc.start()
+    ssc.awaitTermination()
+  }
+
+  // not working
   def consumeFromDirectKafkaApi(): Unit ={
 
     val kafkaProps: Properties = new Properties
