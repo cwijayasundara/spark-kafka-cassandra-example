@@ -7,6 +7,7 @@ import org.apache.spark.SparkContext
 import org.apache.spark.mllib.clustering.KMeansModel
 import org.apache.spark.mllib.linalg.Vector
 import org.apache.spark.streaming.StreamingContext
+import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.twitter.TwitterUtils
 
 /**
@@ -32,11 +33,10 @@ class TwitterPredictorExec(sc: SparkContext, ssc:StreamingContext, numCluster: I
 
     println("Materializing Twitter stream...")
 
-    TwitterUtils.createStream(ssc, None)
-                .map(_.getText)
-                .foreachRDD { rdd =>
-                              rdd.filter(t => model.predict(featurize(t)) == numCluster)
-                                 .foreach(print)  // register DStream as an output stream and materialize it
+    val twitterStream: DStream[String] = TwitterUtils.createStream(ssc,None).map(_.getText)
+    twitterStream.print()
+    twitterStream .foreachRDD { rdd => rdd.filter(t => model.predict(featurize(t)) == numCluster)
+                                                            .foreach(print)  // register DStream as an output stream and materialize it
       }
     println("Initialization complete, starting streaming computation.")
     ssc.start()

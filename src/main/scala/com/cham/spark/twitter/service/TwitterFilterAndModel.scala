@@ -67,8 +67,12 @@ class ExamineAndTrainModel(sc:SparkContext,sqlc: SQLContext,twitterDir:File, mod
     vectors.count()  // Calls an action on the RDD to populate the vectors cache.
     val model: KMeansModel = KMeans.train(vectors, numCluster, numIter)
 
-    sc.makeRDD(model.clusterCenters, numCluster)
-      .saveAsObjectFile(modelDir.getCanonicalPath)
+    val modFiles: File = new File(modelDir.getCanonicalPath)
+
+    if (!modFiles.isDirectory()) {
+      sc.makeRDD(model.clusterCenters, numCluster)
+        .saveAsObjectFile(modelDir.getCanonicalPath)
+    }
 
     println("----100 example tweets from each cluster")
     0 until numCluster foreach { i =>
