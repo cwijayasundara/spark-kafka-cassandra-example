@@ -28,9 +28,13 @@ class ExamineAndTrainModel(sc:SparkContext,sqlc: SQLContext,twitterDir:File, mod
   def markAndTrain(): Unit ={
     //load the tweets from the disk
     val tweets: RDD[String] = sc.textFile(twitterDir.getCanonicalPath)
-    // print a sample of tweets
+
+    println("------------Sample JSON Tweets-------")
     val gson: Gson = new GsonBuilder().setPrettyPrinting().create
     val jsonParser = new JsonParser
+    tweets.take(5) foreach { tweet =>
+      println(gson.toJson(jsonParser.parse(tweet)))
+    }
 
     val tweetTable = sqlc
                         .read
