@@ -4,20 +4,61 @@ import java.util.Properties
 import java.io.File
 
 import akka.actor.{Actor, ActorLogging, ActorRef}
-import akka.cluster.Cluster
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
 import org.apache.spark.rdd.RDD
 import com.cham.spark.twitter.service.SparkResourceSetUp
 import com.google.gson.{Gson, GsonBuilder, JsonParser}
+import org.apache.kafka.common.serialization.StringDeserializer
+import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
+import org.apache.spark.streaming.kafka010.KafkaUtils
+import org.apache.spark.streaming.kafka010.LocationStrategies.PreferConsistent
+import org.apache.spark.streaming.{Seconds, StreamingContext}
 
-/**
+ /**
   * Created by cwijayasundara on 02/12/2016.
   */
-object KafkaStreamingActor {
 
+object KafkaStreamingConsumerActor extends Actor with ActorLogging {
+
+  val sparkConf = SparkResourceSetUp.getSparkContext
+  val ssc = new StreamingContext(sparkConf, Seconds(2))
+
+  val kafkaParams = Map[String, Object](
+    "bootstrap.servers" -> "localhost:9092",
+    "key.deserializer" -> classOf[StringDeserializer],
+    "value.deserializer" -> classOf[StringDeserializer],
+    "group.id" -> "group1",
+    "auto.offset.reset" -> "latest",
+    "enable.auto.commit" -> (false: java.lang.Boolean)
+  )
+
+  val topics = Array("poc")
+
+  /* Consume messages off Kafka
+   *
+   */
+
+  def consumeMessagesOffKafka: Unit ={
+
+    val stream = KafkaUtils.createDirectStream[String, String](
+      ssc,
+      PreferConsistent,
+      Subscribe[String, String](topics, kafkaParams)
+    )
+
+    stream.map(new Gson().toJson(_)).print()
+
+    ssc.start()
+    ssc.awaitTermination()
+
+  }
+
+  def receive : Actor.Receive = {
+    case e => // ignore
+  }
 }
 
-object KafkaStreamPublisherActor extends Actor with ActorLogging{
+object KafkaStreamingProducerActor extends Actor with ActorLogging {
 
   val topic = "poc"
   // Kafka broker host:port
@@ -46,6 +87,7 @@ object KafkaStreamPublisherActor extends Actor with ActorLogging{
 
       tweets.take(5) foreach { tweet =>
         println(gson.toJson(jsonParser.parse(tweet)))
+        log.info(gson.toJson(jsonParser.parse(tweet)))
         val kafkaTweetMessage = new ProducerRecord[String, String](topic,null, gson.toJson(jsonParser.parse(tweet)))
         try{
           producer.send(kafkaTweetMessage).get()
@@ -58,4 +100,6 @@ object KafkaStreamPublisherActor extends Actor with ActorLogging{
   def receive : Actor.Receive = {
     case e => // ignore
   }
+
+  val toActor = (data: String) => self ! publishMessages
 }
