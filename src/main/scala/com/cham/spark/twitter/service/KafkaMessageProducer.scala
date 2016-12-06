@@ -1,5 +1,9 @@
 package com.cham.spark.twitter.service
 
+import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.spark.streaming.dstream.DStream
+
+
 /**
   * Created by cwijayasundara on 01/12/2016.
   * You need to install Apache Kafka (0.10.1.0) and Zookeper 3.4.9
@@ -17,40 +21,24 @@ package com.cham.spark.twitter.service
   *                                            advertised.host.name = localhost
   */
 
-import java.util.Properties
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
+object KafkaMessageProducer extends KafkaMessageProducerTrait with SparkCassandraKafkaIntg{
 
-// TODO : convert this to an (Akka) Actor (KafkaMessageProducingActor)
+  // method to publish messages to Kafka
 
-  object KafkaMessageProducer extends App {
+  def publishMessagesToKafka(tStream:DStream[String]): Unit ={
 
-    val topic = "poc"
-    // Kafka broker host:port
-    val brokers = "localhost:9092"
-    val kafkaStringSerializerClass = "org.apache.kafka.common.serialization.StringSerializer"
-    // test messages
-    val messageStr1 = "nineth message from the app"
-    val messageStr2 = "tenth message from the app"
-
-    // minimum config to connect to Kafka; you can write your own serializers.
-    val kafkaProps = new Properties()
-    kafkaProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers)
-    kafkaProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, kafkaStringSerializerClass)
-    kafkaProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,kafkaStringSerializerClass)
-
-    val producer = new KafkaProducer[String, String](kafkaProps)
-
-    val kafkaMessage1 = new ProducerRecord[String, String](topic,null, messageStr1)
-    val kafkaMessage2 = new ProducerRecord[String,String](topic, null, messageStr2)
-
-    // producer.send().get() will call the Future.get() and is sync ; producer.get() is not waiting for Future returns
-
-    try{
-      producer.send(kafkaMessage1).get()
-      producer.send(kafkaMessage2).get()
-    } catch{
-      case ex: Exception => println ("Error occured while accessing Kafka")
-    }
+    tStream.foreachRDD((t) => {
+      t.take(50) foreach { tweet =>
+        val tweetJson = gson.toJson(jsonParser.parse(tweet))
+        println("before sending to Kafka " + tweetJson)
+        val kafkaTweetMessage = new ProducerRecord[String, String](topic,null,tweetJson)
+        try{
+          producer.send(kafkaTweetMessage).get()
+        }catch{
+          case ex :Exception => printf("Error accessing Kafka..")
+        }
+      }
+    })
   }
 
-
+}

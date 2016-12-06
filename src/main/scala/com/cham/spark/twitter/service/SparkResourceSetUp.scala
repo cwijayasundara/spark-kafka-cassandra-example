@@ -14,6 +14,7 @@ object SparkResourceSetUp {
   private val appName: String = "spark-twitter-kafka-cassandra-sample"
   private val threadProfile:String = "local[4]"
   private val timeInterval: Int = 2
+
   // change with your local settings
   private val twitterBaseDirPath:String = "/Users/cwijayasundara/Documents/self-learning/spark/tweet-classify/tweets"
   private val twitterModelDirPath: String = "/Users/cwijayasundara/Documents/self-learning/spark/tweet-classify/model"
