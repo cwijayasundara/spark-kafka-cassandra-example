@@ -1,14 +1,14 @@
-package com.cham.spark.twitter.service
+package com.cham.spark.examples
 
-import org.apache.kafka.common.serialization.StringDeserializer
-import org.apache.spark.streaming.kafka010._
-import org.apache.spark.streaming.kafka010.LocationStrategies.PreferConsistent
-import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
-import java.util.Properties
-import java.util.Collections
+import java.util.{Collections, Properties}
 
+import com.cham.spark.streaming.actor.SparkCassandraKafkaIntg
 import com.google.gson.Gson
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.common.serialization.StringDeserializer
+import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
+import org.apache.spark.streaming.kafka010.LocationStrategies.PreferConsistent
+import org.apache.spark.streaming.kafka010._
 
  /*
   *
