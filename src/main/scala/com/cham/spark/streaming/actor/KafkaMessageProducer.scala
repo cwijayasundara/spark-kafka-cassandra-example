@@ -1,6 +1,9 @@
-package com.cham.spark.twitter.service
+package com.cham.spark.streaming.actor
 
-import org.apache.kafka.clients.producer.ProducerRecord
+import java.util.Properties
+
+import com.google.gson.{Gson, GsonBuilder, JsonParser}
+import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
 import org.apache.spark.streaming.dstream.DStream
 
 
@@ -21,12 +24,24 @@ import org.apache.spark.streaming.dstream.DStream
   *                                            advertised.host.name = localhost
   */
 
-object KafkaMessageProducer extends KafkaMessageProducerTrait with SparkCassandraKafkaIntg{
+class KafkaMessageProducer(tStream: DStream[String]) {
 
-  // method to publish messages to Kafka
+  // minimum config to connect to Kafka; you can write your own serializers.
+  val topic = "spark-streaming"
+  val brokers = "localhost:9092"
+  val gson: Gson = new GsonBuilder().setPrettyPrinting().create
+  val jsonParser = new JsonParser
 
-  def publishMessagesToKafka(tStream:DStream[String]): Unit ={
+  val kafkaStringSerializerClass = "org.apache.kafka.common.serialization.StringSerializer"
 
+  val kafkaProps = new Properties()
+  kafkaProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers)
+  kafkaProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, kafkaStringSerializerClass)
+  kafkaProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,kafkaStringSerializerClass)
+
+  val producer = new KafkaProducer[String, String](kafkaProps)
+
+  def publishMessagesToKafka : Unit ={
     tStream.foreachRDD((t) => {
       t.take(50) foreach { tweet =>
         val tweetJson = gson.toJson(jsonParser.parse(tweet))
@@ -40,5 +55,4 @@ object KafkaMessageProducer extends KafkaMessageProducerTrait with SparkCassandr
       }
     })
   }
-
 }
