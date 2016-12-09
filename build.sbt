@@ -23,7 +23,7 @@ libraryDependencies ++= {
     "org.apache.spark" % "spark-streaming-kafka-0-10_2.11" % "2.0.2" withSources(),
     "com.typesafe.akka" % "akka-actor_2.11" % "2.4.14" withSources(),
     "com.typesafe.akka" % "akka-cluster_2.11" % "2.4.14" withSources(),
-    "net.manub" %% "scalatest-embedded-kafka" % "0.10.0" % "test" withSources()
+    "com.lmax" % "disruptor" % "3.3.6" withSources()
   )
 }
 
